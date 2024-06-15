@@ -35,7 +35,7 @@ const App = () => {
 
     if (activeId === overId) return;
 
-    // RESUME
+    // const isActiveTask = active.data.current?.type === "task"
   };
 
   return (

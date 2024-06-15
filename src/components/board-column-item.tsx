@@ -11,7 +11,13 @@ const BoardColumnItem = ({
   };
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task.id });
+    useSortable({
+      id: task.id,
+      data: {
+        type: "task",
+        task
+      }
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),
