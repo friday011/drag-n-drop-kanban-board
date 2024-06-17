@@ -6,7 +6,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { BoardColumnItem } from "./board-column-item";
-import { DEFAULT_TASKS } from "../constants";
+import { useStore } from "../store";
 
 const BoardColumn = ({
   board
@@ -16,8 +16,10 @@ const BoardColumn = ({
     title: string;
   };
 }) => {
-  const tasks = DEFAULT_TASKS.filter(task => task.columnId === board.id);
-  const items = tasks.map(task => task.id);
+  const tasks = useStore(state => state.tasks);
+  const boardTasks = tasks.filter(task => task.columnId === board.id);
+
+  const items = boardTasks.map(task => task.id);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -39,12 +41,12 @@ const BoardColumn = ({
       style={style}
       {...attributes}
       {...listeners}
-      className="flex flex-col h-full p-4 space-y-4 border border-gray-800 rounded w-80 shrink-0"
+      className="flex flex-col h-full p-4 space-y-4 bg-black border border-gray-800 rounded w-80 shrink-0"
     >
       <h3 className="text-sm font-medium text-gray-400">{board.title}</h3>
       <SortableContext items={items} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col flex-1 space-y-4">
-          {tasks.map(task => (
+          {boardTasks.map(task => (
             <BoardColumnItem key={task.id} task={task} />
           ))}
         </div>

@@ -1,5 +1,6 @@
 import {
   DndContext,
+  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   closestCorners,
@@ -10,7 +11,9 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 
 import { KanbanBoard } from "./components/kanban-board";
-import { DEFAULT_COLUMNS } from "./constants";
+import { BoardColumn } from "./components/board-column";
+import { BoardColumnItem } from "./components/board-column-item";
+import { useStore } from "./store";
 
 const App = () => {
   const sensors = useSensors(
@@ -20,12 +23,31 @@ const App = () => {
     })
   );
 
+  const boards = useStore(state => state.boards);
+
+  const activeBoard = useStore(state => state.activeBoard);
+  const setActiveBoard = useStore(state => state.setActiveBoard);
+
+  const activeTask = useStore(state => state.activeTask);
+  const setActiveTask = useStore(state => state.setActiveTask);
+
   const onDragStart = (event: DragStartEvent) => {
     console.log("onDragStart", event);
+
+    if (event.active.data.current?.type === "board") {
+      setActiveBoard(event.active.data.current.board);
+    }
+
+    if (event.active.data.current?.type === "task") {
+      setActiveTask(event.active.data.current.task);
+    }
   };
 
   const onDragEnd = (event: DragEndEvent) => {
     console.log("onDragEnd", event);
+
+    setActiveBoard(null);
+    setActiveTask(null);
 
     const { active, over } = event;
     if (!over) return;
@@ -36,6 +58,7 @@ const App = () => {
     if (activeId === overId) return;
 
     // const isActiveTask = active.data.current?.type === "task"
+    // const isActiveBoard = active.data.current?.type === "board"
   };
 
   return (
@@ -46,7 +69,11 @@ const App = () => {
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
       >
-        <KanbanBoard boards={DEFAULT_COLUMNS} />
+        <KanbanBoard boards={boards} />
+        <DragOverlay>
+          {activeBoard && <BoardColumn board={activeBoard} />}
+          {activeTask && <BoardColumnItem task={activeTask} />}
+        </DragOverlay>
       </DndContext>
     </main>
   );
